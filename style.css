@@ -51,8 +51,7 @@ nav a:hover {
 
 
 
-
-form, input, textarea, button, label {
+form, input, textarea, button, label, select {
   font: inherit;
 }
 
@@ -103,4 +102,12 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-block;
     padding: 0.4em 0.4em;
   }
+
+.color-scheme {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 80%;
+  font-family: inherit;
+}
 
