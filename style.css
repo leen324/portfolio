@@ -26,7 +26,9 @@ nav {
     margin-bottom: 1em;
     border-bottom-width: 1px;
     border-bottom-style: solid;
-    border-bottom-color: oklch(80% 3% 200);
+    border-bottom-color: var(--border-color);;
+    --border-color: oklch(50% 10% 200 / 40%);
+  /* ... other styles and nested rules ... */
 }
 nav a {
     flex: 1;
@@ -44,7 +46,7 @@ nav a.current {
 nav a:hover {
     border-bottom: 0.4em solid var(--color-accent);
     padding-bottom: 0.1em;
-    background-color: oklch(from var(--color-accent) 95% 5% h);
+    background-color: color-mix(in oklch, var(--color-accent), canvas 85%);
   }
 
 
@@ -101,3 +103,4 @@ h1, h2, h3, h4, h5, h6 {
     display: inline-block;
     padding: 0.4em 0.4em;
   }
+
