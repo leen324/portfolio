@@ -6,7 +6,8 @@ const latestProjects = projects.slice(0, 3);
 
 const projectsContainer = document.querySelector('.projects');
 
-latestProjects.forEach(p => renderProjects(p, projectsContainer, 'h2'));
+//latestProjects.forEach(p => renderProjects(p, projectsContainer, 'h2'));
+renderProjects(latestProjects, projectsContainer, 'h2');
 
 const githubData = await fetchGitHubData('leen324');
 
