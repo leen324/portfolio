@@ -5,6 +5,9 @@ const projects = await fetchJSON('../lib/projects.json');
 const projectsContainer = document.querySelector('.projects');
 renderProjects(projects, projectsContainer, 'h2');
 
+let query = '';
+let selectedIndex = -1;
+
 function renderPieChart(projectsGiven) {
   let newRolledData = d3.rollups(
     projectsGiven,
@@ -31,28 +34,78 @@ function renderPieChart(projectsGiven) {
   let legend = d3.select('.legend');
   legend.selectAll('li').remove();
   
-  arcs.forEach((arc, idx) => {
+  arcs.forEach((arc, i) => {
     newSVG
       .append('path')
       .attr('d', arc)
-      .attr('fill', colors(idx));
+      .attr('fill', colors(i))
+      .attr('class', 'pie-slice')
+      .on('click', () => {
+        selectedIndex = selectedIndex === i ? -1 : i;
+        
+        newSVG.selectAll('path')
+            .attr('class', (_, idx) =>
+                idx === selectedIndex ? 'selected pie-slice' : 'pie-slice'
+            );
+
+        legend
+          .selectAll('li')
+          .attr('class', (_, idx) =>
+            idx === selectedIndex ? 'selected legend-item' : 'legend-item'
+          );
+
+        if (selectedIndex === -1) {
+            renderProjects(projects, projectsContainer, 'h2')
+        } else {
+            let selectedYear = data[selectedIndex].label;
+            let filtered = projects.filter((p) => p.year === selectedYear);
+            renderProjects(filtered, projectsContainer, 'h2');
+        }
+      });
   });
   
-  data.forEach((d, idx) => {
+  data.forEach((d, i) => {
     legend
       .append('li')
       .attr('class', 'legend-item')
-      .attr('style', `--color:${colors(idx)}`) 
-      .html(`<span class="swatch"></span> ${d.label} <em>(${d.value})</em>`); 
+      .attr('style', `--color:${colors(i)}`) 
+      .html(`<span class="swatch"></span> ${d.label} <em>(${d.value})</em>`) 
+      .on('click', () => {
+        selectedIndex = selectedIndex === i ? -1 : i;
+
+        newSVG
+          .selectAll('path')
+          .attr('class', (_, idx) =>
+            idx === selectedIndex ? 'selected pie-slice' : 'pie-slice'
+          );
+
+        legend
+          .selectAll('li')
+          .attr('class', (_, idx) =>
+            idx === selectedIndex ? 'selected legend-item' : 'legend-item'
+          );
+
+        if (selectedIndex === -1) {
+          renderProjects(projects, projectsContainer, 'h2');
+        } else {
+          let selectedYear = data[selectedIndex].label;
+          let filtered = projects.filter(
+            (p) => p.year === selectedYear
+          );
+          renderProjects(filtered, projectsContainer, 'h2');
+        }
+      });
   });
 }
 
+
 renderPieChart(projects);
 
-let query = '';
 let searchInput = document.querySelector('.searchBar');
 searchInput.addEventListener('input', (event) => {
   query = event.target.value;
+
+  selectedIndex = -1;
   
   let filteredProjects = projects.filter((project) => {
     let values = Object.values(project).join('\n').toLowerCase();

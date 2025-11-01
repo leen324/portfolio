@@ -161,12 +161,30 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 2em;
 }
 
-&:has(path:hover) {
+
+/* hovering on piee */
+/* &:has(path:hover) {
   path:not(:hover) {
     opacity: 0.5;
   }
-}
+} */
 
 path {
+  cursor: pointer;
   transition: 300ms;
+}
+
+
+.selected {
+  --color: oklch(60% 45% 0) !important;
+}
+
+.selected.pie-slice {
+  fill: var(--color);
+}
+
+.selected.legend-item {
+  font-weight: bold;
+  background-color: color-mix(in oklch, var(--color), white 75%);
+  border-radius: 0.3em;
 }
