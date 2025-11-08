@@ -22,6 +22,7 @@ let pages = [
   // add the rest of your pages here
   { url: "contact/index.html", title: "Contact Me" },
   { url: "resume/index.html", title: "Resume" },
+  { url: "meta/index.html", title: "Meta" },
   { url: "https://github.com/leen324", title: "My GitHub", external: true }
 ];
 
