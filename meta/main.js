@@ -584,6 +584,8 @@ let commitMaxTime = timeScale.invert(commitProgress);
 
 let slider = document.getElementById("commit-progress");
 let timeDisplay = document.getElementById("commit-time");
+// Will get updated as user changes slider
+let filteredCommits = commits;
 
 function onTimeSliderChange() {
   commitProgress = +slider.value;
@@ -591,15 +593,74 @@ function onTimeSliderChange() {
 
   timeDisplay.textContent = commitMaxTime.toLocaleString("en", {
     dateStyle: "long",
-    timeStyle: "short",
-  });
+    timeStyle: "short"});
+
+  filteredCommits = commits.filter((d) => d.datetime <= commitMaxTime);
 
   d3.selectAll("circle")
     .attr("display", (d) =>
       d.datetime <= commitMaxTime ? null : "none"
     );
-}
+
+  updateScatterPlot(data, filteredCommits);
+  }
 
 slider.addEventListener("input", onTimeSliderChange);
 
 onTimeSliderChange();
+
+function updateScatterPlot(data, commits) {
+  const width = 1000;
+  const height = 600;
+  const margin = { top: 10, right: 10, bottom: 30, left: 20 };
+  const usableArea = {
+    top: margin.top,
+    right: width - margin.right,
+    bottom: height - margin.bottom,
+    left: margin.left,
+    width: width - margin.left - margin.right,
+    height: height - margin.top - margin.bottom,
+  };
+
+  const svg = d3.select('#chart').select('svg');
+
+  xScale = xScale.domain(d3.extent(commits, (d) => d.datetime));
+
+  const [minLines, maxLines] = d3.extent(commits, (d) => d.totalLines);
+  const rScale = d3.scaleSqrt().domain([minLines, maxLines]).range([2, 30]);
+
+  const xAxis = d3.axisBottom(xScale);
+  const xAxisGroup = svg.select('g.x-axis');
+  xAxisGroup.selectAll("*").remove();
+  xAxisGroup.call(xAxis);
+
+  const dots = svg.select('g.dots');
+
+  const sortedCommits = d3.sort(commits, (d) => -d.totalLines);
+  dots
+    .selectAll('circle')
+    .data(sortedCommits, d => d.id)  // 🔧 Add key for stability
+    .join(
+      enter => enter.append("circle")
+        .attr('cx', d => xScale(d.datetime))
+        .attr('cy', d => yScale(d.hourFrac))
+        .attr('r', d => rScale(d.totalLines))
+        .style('fill-opacity', 0.7)
+        .attr('fill', 'steelblue')
+        .on('mouseenter', (event, d) => {
+          d3.select(event.currentTarget).style('fill-opacity', 1);
+          renderTooltipContent(d);
+          updateTooltipVisibility(true);
+          updateTooltipPosition(event);
+        })
+        .on('mouseleave', (event) => {
+          d3.select(event.currentTarget).style('fill-opacity', 0.7);
+          updateTooltipVisibility(false);
+        }),
+      update => update
+        .attr('cx', d => xScale(d.datetime))
+        .attr('cy', d => yScale(d.hourFrac))
+        .attr('r', d => rScale(d.totalLines)),
+      exit => exit.remove()
+    );
+}
