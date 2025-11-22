@@ -568,3 +568,38 @@ function renderLanguageBreakdown(selection) {
 // }
 
 
+
+// animation
+
+let commitProgress = 100;
+
+let timeScale = d3
+  .scaleTime()
+  .domain([
+    d3.min(commits, (d) => d.datetime),
+    d3.max(commits, (d) => d.datetime),
+  ])
+  .range([0, 100]);
+let commitMaxTime = timeScale.invert(commitProgress);
+
+let slider = document.getElementById("commit-progress");
+let timeDisplay = document.getElementById("commit-time");
+
+function onTimeSliderChange() {
+  commitProgress = +slider.value;
+  commitMaxTime = timeScale.invert(commitProgress);
+
+  timeDisplay.textContent = commitMaxTime.toLocaleString("en", {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
+
+  d3.selectAll("circle")
+    .attr("display", (d) =>
+      d.datetime <= commitMaxTime ? null : "none"
+    );
+}
+
+slider.addEventListener("input", onTimeSliderChange);
+
+onTimeSliderChange();
