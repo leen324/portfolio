@@ -127,7 +127,7 @@ function renderScatterPlot(data, commits) {
 
   dots
     .selectAll('circle')
-    .data(sortedCommits)
+    .data(sortedCommits, d => d.id)
     .join('circle')
     .attr('cx', (d) => xScale(d.datetime))
     .attr('cy', (d) => yScale(d.hourFrac))
@@ -170,12 +170,14 @@ function renderScatterPlot(data, commits) {
   svg
   .append('g')
   .attr('transform', `translate(0, ${usableArea.bottom})`)
+  .attr('class', 'x-axis') // new line to mark the g tag
   .call(xAxis);
 
   // Add Y axis
   svg
   .append('g')
   .attr('transform', `translate(${usableArea.left}, 0)`)
+  .attr('class', 'y-axis') // just for consistency
   .call(yAxis);
 
   // Add gridlines BEFORE the axes
@@ -639,7 +641,7 @@ function updateScatterPlot(data, commits) {
   const sortedCommits = d3.sort(commits, (d) => -d.totalLines);
   dots
     .selectAll('circle')
-    .data(sortedCommits, d => d.id)  // 🔧 Add key for stability
+    .data(sortedCommits, d => d.id)  
     .join(
       enter => enter.append("circle")
         .attr('cx', d => xScale(d.datetime))

@@ -254,9 +254,15 @@ dl.info dd {
 }
 
 circle {
-  transition: 200ms;
+  /* transition: 200ms; */
+  transition: r 0.25s ease, cx 0.25s ease, cy 0.25s ease;
   transform-origin: center;
   transform-box: fill-box;
+
+  @starting-style {
+  r: 0;
+}
+
 }
 
 circle:hover {
