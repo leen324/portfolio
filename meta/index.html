@@ -10,6 +10,10 @@
     <h1>Meta</h1>
     <p>This page is dedicated for stats relating to the code of this website</p>
 
+    <h2>Commits by time of day</h2>
+
+
+    <div id="stats"></div>
 
     <div style="display: flex; align-items: center; gap: 1rem;">
         <label style="flex: 1;">
@@ -20,24 +24,33 @@
         <time id="commit-time" style="margin-left: auto;"></time>
     </div>
 
-    <dl id="files">
     <!-- we want the following structure for each file:
     <div>
         <dt>
         <code>{file.name}</code>
         </dt>
-        <dd>{file.lines.length} lines</dd>
+        <dd>
+            <div class="line"></div>
+        </dd>
     </div>
     -->
     </dl>
+    
 
-    <div id="stats"></div>
+    <!-- old code -->
+    <div id="scrolly-1">
+        <div id="scatter-story"></div>
+
+        <div id="scatter-plot">
+            <div id="chart"></div>
+        </div>
+    </div>
 
     <script type="module" src="../global.js"></script>
     <script type="module" src="./main.js"></script>
 
-    <h2>Commits by time of day</h2>
-    <div id="chart"></div>
+
+    <!-- <div id="chart"></div> -->
 
     <dl id="commit-tooltip" class="info tooltip" hidden>
         <dt>Commit</dt>
@@ -56,6 +69,15 @@
 
 
 
+    </div>
+    </div>
+    <!-- old code -->
+
+
+    <!-- <div id="stats"></div> -->
+
+    
+    <dl id="files">
 
 
 </body>

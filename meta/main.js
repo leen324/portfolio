@@ -19,7 +19,7 @@ async function loadData() {
 
 
 function processCommits(data) {
-  return d3.groups(data, (d) => d.commit).map(([commit, lines]) => {
+  let commits = d3.groups(data, (d) => d.commit).map(([commit, lines]) => {
     let first = lines[0] || {};
     let { author, date, time, timezone, datetime } = first;
 
@@ -44,6 +44,9 @@ function processCommits(data) {
 
     return ret;
   });
+
+  commits = d3.sort(commits, d => d.datetime);
+  return commits;
 }
 
 
@@ -670,48 +673,99 @@ function updateScatterPlot(data, commits) {
 
 // after initializing filteredCommits
 function updateFileDisplay(filteredCommits) {
-let lines = filteredCommits.flatMap((d) => d.lines);
-let files = d3
-  .groups(lines, (d) => d.file)
-  .map(([name, lines]) => {
-    return { name, lines };
-  })
-  .sort((a, b) => b.lines.length - a.lines.length);
+  let lines = filteredCommits.flatMap((d) => d.lines);
+  let files = d3
+    .groups(lines, (d) => d.file)
+    .map(([name, lines]) => {
+      return { name, lines };
+    })
+    .sort((a, b) => b.lines.length - a.lines.length);
 
 
-let filesContainer = d3
-  .select('#files')
-  .selectAll('div')
-  .data(files, (d) => d.name)
-  .join(
-    // This code only runs when the div is initially rendered
-    (enter) =>
-      enter.append('div').call((div) => {
-        div.append('dt').append('code');
-        div.append('dd');
-      }),
-  );
+  let filesContainer = d3
+    .select('#files')
+    .selectAll('div')
+    .data(files, (d) => d.name)
+    .join(
+      // This code only runs when the div is initially rendered
+      (enter) =>
+        enter.append('div').call((div) => {
+          div.append('dt').append('code');
+          div.append('dd');
+        }),
+    );
 
-// This code updates the div info
-filesContainer.select('dt > code').text((d) => d.name);
-//filesContainer.select('dd').text((d) => `${d.lines.length} lines`);
+  // This code updates the div info
+  filesContainer.select('dt > code').text((d) => d.name);
+  //filesContainer.select('dd').text((d) => `${d.lines.length} lines`);
 
-let colors = d3.scaleOrdinal(d3.schemeTableau10);
+  let colors = d3.scaleOrdinal(d3.schemeTableau10);
 
-filesContainer
-  .select('dd')
-  .selectAll('div')
-  .data((d) => d.lines)
-  .join('div')
-  .attr('class', 'loc')
-  .attr('style', (d) => `--color: ${colors(d.type)}`);
+  filesContainer
+    .select('dd')
+    .selectAll('div')
+    .data((d) => d.lines)
+    .join('div')
+    .attr('class', 'loc')
+    .attr('style', (d) => `--color: ${colors(d.type)}`);
 
-filesContainer.select('dt')
-  .html(d => `
-    <code>${d.name}</code>
-    <small>${d.lines.length} lines</small>
-  `);
-
-
+  filesContainer.select('dt')
+    .html(d => `
+      <code>${d.name}</code>
+      <small>${d.lines.length} lines</small>
+    `);
 }
 
+
+d3.select('#scatter-story')
+  .selectAll('.step')
+  .data(commits)
+  .join('div')
+  .attr('class', 'step')
+  
+  .html(
+    (d, i) => `
+		On ${d.datetime.toLocaleString('en', {
+      dateStyle: 'full',
+      timeStyle: 'short',
+    })},
+		I made <a href="${d.url}" target="_blank">${
+      i > 0 ? 'another glorious commit' : 'my first commit, and it was glorious'
+    }</a>.
+		I edited ${d.totalLines} lines across ${
+      d3.rollups(
+        d.lines,
+        (D) => D.length,
+        (d) => d.file,
+      ).length
+    } files.
+		despite not remembering exactly what i coded, i'm honestly a bit proud of myself for even remembering to commit this often. commitment issues who?
+	`,
+  );
+
+// scrollama setup
+import scrollama from 'https://cdn.jsdelivr.net/npm/scrollama@3.2.0/+esm';
+function onStepEnter(response) {
+  console.log(response.element.__data__.datetime);
+
+  const currentTime = response.element.__data__.datetime;
+
+  // Filter commits up to this point
+  filteredCommits = commits.filter(d => d.datetime <= currentTime);
+
+  // Hide/show dots visually — like your slider
+  d3.selectAll("circle")
+    .attr("display", d => d.datetime <= currentTime ? null : "none");
+
+  // Reuse your existing update functions
+  updateScatterPlot(data, filteredCommits);
+  updateFileDisplay(filteredCommits);
+}
+
+const scroller = scrollama();
+scroller
+  .setup({
+    container: '#scrolly-1',
+    step: '#scrolly-1 .step',
+  })
+  .onStepEnter(onStepEnter);
