@@ -10,13 +10,6 @@
     <h1>Meta</h1>
     <p>This page is dedicated for stats relating to the code of this website</p>
 
-    <!-- <div style="display: flex; align-items: baseline;">
-        <label>
-            Show commits until:
-            <input type="range" id="commit-progress" min="0" max="100" value="100">
-        </label>
-        <time id="commit-time" style="margin-left: auto;"></time>
-    </div> -->
 
     <div style="display: flex; align-items: center; gap: 1rem;">
         <label style="flex: 1;">
@@ -26,6 +19,17 @@
 
         <time id="commit-time" style="margin-left: auto;"></time>
     </div>
+
+    <dl id="files">
+    <!-- we want the following structure for each file:
+    <div>
+        <dt>
+        <code>{file.name}</code>
+        </dt>
+        <dd>{file.lines.length} lines</dd>
+    </div>
+    -->
+    </dl>
 
     <div id="stats"></div>
 
